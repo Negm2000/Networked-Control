@@ -17,7 +17,6 @@ N = 2;   % Number of subsystems
 
 % Continuous-Time State Space Matrices (A, B, C)
 % State x = [theta1, d_theta1, theta2, d_theta2]'
-% Derived from linearized equations of motion [07_Penduli.pdf, Eq 1.61]
 A = [
     0               1       0         0
     g/l-k*a^2/m/l^2 0 k*a^2/m/l^2     0
@@ -188,7 +187,6 @@ sol = optimize(constraints, gamma, options); % Minimize gamma
 
 if sol.problem == 0
     K_hinf = double(L) / double(P);
-    disp('H-Infinity Controller (K_hinf) successfully designed.');
     fprintf('Optimal H-Infinity Gain (gamma): %.4f\n', double(gamma));
     
     F_cl_hinf = F + G * K_hinf;
@@ -207,7 +205,6 @@ end
 % =========================================================================
 
 function Kx = solveLMI(LMIconstr,P,L)
-    % Helper function to solve standard feasibility LMI
     options = sdpsettings('verbose', 0); 
     J = optimize(LMIconstr,[],options);
     if J.problem 
