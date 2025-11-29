@@ -3,11 +3,11 @@ clear
 close all
 
 % Project 7: Coupled Penduli
-% Reference: 07_Penduli.pdf
-% Two inverted penduli connected by a spring (stiffness k)
+
 k = 0.2;   % N/m (Spring stiffness)
 % k = 2;   % N/m
 % k = 200; % N/m
+
 l = 1;   % m (Rod length)
 m = 1;   % kg (Mass)
 g = 9.8; % m/s2 (Gravity)
@@ -17,6 +17,7 @@ N = 2;   % Number of subsystems
 
 % Continuous-Time State Space Matrices (A, B, C)
 % State x = [theta1, d_theta1, theta2, d_theta2]'
+% Derived from linearized equations of motion [07_Penduli.pdf, Eq 1.61]
 A = [
     0               1       0         0
     g/l-k*a^2/m/l^2 0 k*a^2/m/l^2     0
@@ -36,7 +37,8 @@ B2 = B(:,2);
 C1 = C(1:2,:);
 C2 = C(3:end,:);
 
-% Discretization 
+% Discretization (Zero-Order Hold)
+% Theory: Part I, Section B.1, Eq (iv)
 % F = e^(Ah)
 F = expm(A*h); 
 % G = integral(e^(At)dt) * B
@@ -51,7 +53,7 @@ H2 = H(3:end,:);
 
 % 2. Analysis
 % ---------------------------------
-% Check open-loop stability
+% Check open-loop stability (Part I, Theorem 3)
 % Unstable if any eigenvalue magnitude > 1
 isStable(F);
 
@@ -78,14 +80,13 @@ disp("Check if the centralized discrete system is stable (Stability LMI).")
 isStable(F_cl);
 
 % VISUALIZATION A
-generate_plots_smooth(Kx, A, B, h, n_states, 'Stability LMI');
+generate_plots_discrete(F_cl, h, n_states, 'Stability LMI');
 
 %  B. Pole Placement (Spectral Radius / Speed)
 % ---------------------------------
 % Goal: Force eigenvalues |lambda| < rho
-% Require (1/rho)*(F+GK) to be Schur stable.
-% This scales the P term by rho^2 in the LMI.
-rho = 0.12; 
+% How: Require (1/rho)*(F+GK) to be Schur stable.
+rho = 0.2; 
 LMIconstr_speed=[[rho^2*P-F*P*F'-F*L'*G'-G*L*F' , G*L;
                                 L'*G'           , P  ] >= 1e-2*eye(n_states*2)];
 
@@ -95,7 +96,7 @@ disp("Check if the centralized discrete system is stable (Speed LMI).")
 isStable(F_cl);
 
 % VISUALIZATION B
-generate_plots_smooth(Kx, A, B, h, n_states, 'Speed LMI');
+generate_plots_discrete(F_cl, h, n_states, 'Speed LMI');
 
 %  C. H2 Optimal Design 
 % ---------------------------------
@@ -104,6 +105,8 @@ P=sdpvar(n_states);
 L=sdpvar(m_inputs,n_states);
 
 % Bryson's Rule for Weights
+% Q_{ii} = 1/(max acceptable value for x_i)^2 
+% R_{ii} = 1/(max acceptable value for u_i)^2
 Q = diag([0.01^-2, 0.1^-2, 0.01^-2, 0.1^-2]); % State penalty
 R = 10*eye(2); % Input penalty
 
@@ -136,14 +139,14 @@ end
 
 L_val = double(L);
 P_val = double(P);
-Kx = L_val/P_val;
+Kx = L_val/P_val; % Recover K
 
 F_cl = F + G*Kx;
 disp("Check if the centralized discrete system is stable (H2).")
 isStable(F_cl);
 
 % VISUALIZATION C
-generate_plots_smooth(Kx, A, B, h, n_states, 'H2 Design');
+generate_plots_discrete(F_cl, h, n_states, 'H2 Design');
 
 %  D. H-Infinity Robust Design
 % ---------------------------------
@@ -193,7 +196,7 @@ if sol.problem == 0
     fprintf('Closed-loop spectral radius: %.4f\n', rho_hinf);
     
     % VISUALIZATION D
-    generate_plots_smooth(K_hinf, A, B, h, n_states, 'H-Inf Design');
+    generate_plots_discrete(F_cl_hinf, h, n_states, 'H-Inf Design');
 else
     disp('H-Infinity LMI was Infeasible');
     disp(sol.info);
@@ -227,54 +230,28 @@ function rho = isStable(F)
     end
 end
 
-% --- HYBRID SMOOTH PLOTTING ---
-function generate_plots_smooth(K, A, B, h, n_states, plotTitle)
-    % Simulates Hybrid System: 
-    % - Continuous Plant (ODE)
-    % - Discrete Controller (Sample & Hold)
-    
-    dt_physics = 0.01; % Fine integration step
+function generate_plots_discrete(F_cl, h, n_states, plotTitle)
+
     n_steps = 20; 
-    t_final = h * n_steps;
-    t_smooth = 0:dt_physics:t_final;
+    t = 0:h:(h*n_steps);
     
     x0 = [pi/6; 0; -pi/6; 0]; 
-    current_x = x0;
+    x_hist = zeros(n_states, length(t));
+    x_hist(:, 1) = x0;
     
-    x_hist_smooth = zeros(n_states, length(t_smooth));
-    u_hist = zeros(2, length(t_smooth));
-    
-    u_current = [0;0];
-    next_sample_time = 0;
-    
-    for i = 1:length(t_smooth)
-        t_now = t_smooth(i);
-        
-        % Discrete Control Update (Zero Order Hold)
-        if t_now >= next_sample_time
-            if ~isempty(K)
-                u_current = K * current_x; 
-            else
-                u_current = [0;0];
-            end
-            next_sample_time = next_sample_time + h;
-        end
-        
-        % Continuous Physics Update (Euler integration for simplicity)
-        dx = A * current_x + B * u_current;
-        current_x = current_x + dx * dt_physics;
-        
-        x_hist_smooth(:, i) = current_x;
-        u_hist(:, i) = u_current;
+    for k = 1:n_steps
+        x_hist(:, k+1) = F_cl * x_hist(:, k);
     end
     
     figure('Name', plotTitle, 'Color', 'w');
-    sgtitle([plotTitle ' (Smooth Simulation)']); 
+    sgtitle([plotTitle ' (Discrete Simulation)']); 
     
     titles = {'Pos 1 (x1)', 'Vel 1 (x2)', 'Pos 2 (x3)', 'Vel 2 (x4)'};
     for k = 1:4
         subplot(2, 2, k);
-        plot(t_smooth, x_hist_smooth(k, :), 'LineWidth', 1.5);
-        title(titles{k}); grid on;
+        plot(t, x_hist(k, :), '-o', 'LineWidth', 1.5, 'MarkerSize', 4);
+        title(titles{k}); 
+        grid on;
+        xlabel('Time (s)');
     end
 end
