@@ -52,7 +52,6 @@ H2 = H(3:end,:);
 
 % 2. Analysis
 % ---------------------------------
-% Check open-loop stability (Part I, Theorem 3)
 % Unstable if any eigenvalue magnitude > 1
 isStable(F);
 
