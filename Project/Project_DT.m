@@ -2,18 +2,21 @@ clc
 clear
 close all
 
-% coupled penduli
-% Marcello Farina, 19/12/2019, updated on 25/10/2020
-
-k = 0.2;   % N/m
+% Project 7: Coupled Penduli
+% Reference: 07_Penduli.pdf
+% Two inverted penduli connected by a spring (stiffness k)
+k = 0.2;   % N/m (Spring stiffness)
 % k = 2;   % N/m
 % k = 200; % N/m
-l = 1;   % m
-m = 1;   % kg
-g = 9.8; % m/s2
-a = l;
-h = 0.5; % s
+l = 1;   % m (Rod length)
+m = 1;   % kg (Mass)
+g = 9.8; % m/s2 (Gravity)
+a = l;   % Spring attachment height
+h = 0.5; % s (Sampling time)
 N = 2;   % Number of subsystems
+
+% Continuous-Time State Space Matrices (A, B, C)
+% State x = [theta1, d_theta1, theta2, d_theta2]'
 A = [
     0               1       0         0
     g/l-k*a^2/m/l^2 0 k*a^2/m/l^2     0
@@ -21,40 +24,54 @@ A = [
     k*a^2/m/l^2     0 g/l-k*a^2/m/l^2 0
     ];
 B=[[0 1/m/l^2 0 0]',[0 0 0 1/m/l^2]'];
-C=eye(4);
+C=eye(4); % Full state feedback assumed
 
-%  1. Modelling
+%  1. Modelling & Discretization
 % ---------------------------------
 % Decompose the state and input vectors into subvectors
+% Subsystem 1: States 1,2; Input 1
+% Subsystem 2: States 3,4; Input 2
 B1 = B(:,1);
 B2 = B(:,2);
 C1 = C(1:2,:);
 C2 = C(3:end,:);
 
-% Generate the system matrices 
-F = expm(A*h);
-% G formula 
-G = A \ (expm(A*h) - expm(A*0)) * B;
+% Discretization 
+% F = e^(Ah)
+F = expm(A*h); 
+% G = integral(e^(At)dt) * B
+G = A \ (expm(A*h) - expm(A*0)) * B; 
 H = C;
+
+% Decomposed discrete matrices
 G1 = G(:,1);
 G2 = G(:,2);
 H1 = H(1:2,:);
 H2 = H(3:end,:);
 
-% 2. Analysis - DT Centralized
+% 2. Analysis
 % ---------------------------------
+% Check open-loop stability
+% Unstable if any eigenvalue magnitude > 1
 isStable(F);
 
-% 3. Design - LMI
+% 3. Design - LMI Setup
 n_states = 4;
 m_inputs = 2;
+
+% Optimization Variables
+% P: Lyapunov matrix (P > 0)
+% L: Controller proxy variable (L = K*P) to linearize the inequality
 P=sdpvar(n_states);
 L=sdpvar(m_inputs,n_states);
 
-%  A. Stability
+%  A. Static State-Feedback Stability
 % ---------------------------------
+% Condition: (F+GK)P(F+GK)' - P < 0
+% Implemented using Schur Complement:
 LMIconstr_stability=[[P-F*P*F'-F*L'*G'-G*L*F' , G*L;
                                 L'*G'         , P  ] >= 1e-2*eye(n_states*2)];
+
 Kx = solveLMI(LMIconstr_stability,P,L);
 F_cl = F + G*Kx;
 disp("Check if the centralized discrete system is stable (Stability LMI).")
@@ -62,13 +79,16 @@ isStable(F_cl);
 
 % VISUALIZATION A
 generate_plots_smooth(Kx, A, B, h, n_states, 'Stability LMI');
-animate_pendulums(Kx, A, B, h, 'Stability Animation'); 
 
-%  B. Pole Placement (Speed)
+%  B. Pole Placement (Spectral Radius / Speed)
 % ---------------------------------
-rho = 0.12; % |𝜆| < 0.2
+% Goal: Force eigenvalues |lambda| < rho
+% Require (1/rho)*(F+GK) to be Schur stable.
+% This scales the P term by rho^2 in the LMI.
+rho = 0.12; 
 LMIconstr_speed=[[rho^2*P-F*P*F'-F*L'*G'-G*L*F' , G*L;
                                 L'*G'           , P  ] >= 1e-2*eye(n_states*2)];
+
 Kx = solveLMI(LMIconstr_speed,P,L);
 F_cl = F + G*Kx;
 disp("Check if the centralized discrete system is stable (Speed LMI).")
@@ -76,37 +96,44 @@ isStable(F_cl);
 
 % VISUALIZATION B
 generate_plots_smooth(Kx, A, B, h, n_states, 'Speed LMI');
-animate_pendulums(Kx, A, B, h, 'Speed LMI Animation'); 
 
-%  C. H2 Design
+%  C. H2 Optimal Design 
 % ---------------------------------
+% Goal: Minimize Trace(S), where S is an upper bound on output energy z_k.
 P=sdpvar(n_states); 
 L=sdpvar(m_inputs,n_states);
 
-% Bryson's Rule
-%Q_{ii} = 1/(max acceptable value for x_i)^2
-%R_{ii} = 1/(max acceptable value for u_i)^2
-Q = diag([0.01^-2, 0.1^-2, 0.01^-2, 0.1^-2]); 
-R = 10*eye(2); 
-Gw = eye(4); 
-H = [sqrtm(Q); zeros(2,4)];
-Du = [zeros(4,2); sqrtm(R)];
+% Bryson's Rule for Weights
+Q = diag([0.01^-2, 0.1^-2, 0.01^-2, 0.1^-2]); % State penalty
+R = 10*eye(2); % Input penalty
+
+% Generalized Plant Matrices
+Gw = eye(4); % Noise input matrix (assume noise on all states)
+H = [sqrtm(Q); zeros(2,4)]; % Performance State weight
+Du = [zeros(4,2); sqrtm(R)]; % Performance Input weight
+
 S = sdpvar(6, 6, 'symmetric'); 
 
+% LMI 1: Reachability Gramian Constraint (Stability with noise)
+% Ensures state energy P is bounded in presence of noise Gw
 LMI_1 = [ [P - F*P*F' - F*L'*G' - G*L*F' - Gw*Gw',  G*L];
           [L'*G',                                   P] ] >= 1e-6 * eye(n_states*2);
 
+% LMI 2: Observability/Cost Constraint
+% Connects state energy P to cost S using Schur Complement
 LMI_2 = [ [S,                           H*P + Du*L];
           [(H*P + Du*L)',     P] ] >= 1e-6 * eye(2*n_states+m_inputs);
 
 LMIconstr_H2 = [LMI_1, LMI_2];
 options = sdpsettings('verbose', 0); 
+
+% Minimize Trace(S) ==> Minimize H2 Norm
 J = optimize(LMIconstr_H2,trace(S),options);
+
 if J.problem 
     disp("Unfeasible")
 end
 
-% Manual extraction (as in your code)
 L_val = double(L);
 P_val = double(P);
 Kx = L_val/P_val;
@@ -117,19 +144,21 @@ isStable(F_cl);
 
 % VISUALIZATION C
 generate_plots_smooth(Kx, A, B, h, n_states, 'H2 Design');
-animate_pendulums(Kx, A, B, h, 'H2 Animation'); 
 
-%  D. H-Infinity Design
+%  D. H-Infinity Robust Design
 % ---------------------------------
+% Goal: Minimize worst-case gain gamma from disturbance w to output z.
+% Uses the Bounded Real Lemma in LMI form.
+
 P = sdpvar(n_states);
 L = sdpvar(m_inputs,n_states);
+gamma = sdpvar(1); % Performance level (scalar)
 
-gamma = sdpvar(1);
 H_perf = H;
 Du_perf = Du;
-Dw = zeros(size(H_perf,1), size(Gw,2)); 
+Dw = zeros(size(H_perf,1), size(Gw,2)); % No direct feedthrough
 
-% Build the 4x4 Block LMI 
+% Build the 4x4 Block Matrix for Bounded Real Lemma (Page 86)
 LMI_11 = P;
 LMI_12 = F*P + G*L;
 LMI_13 = Gw;
@@ -152,7 +181,7 @@ LMI_Hinf = [ LMI_11, LMI_12, LMI_13, LMI_14;
 constraints = [LMI_Hinf >= 1e-6 * eye(size(LMI_Hinf,1)), P >= 1e-6 * eye(n_states)];
 
 disp('Solving H-Infinity LMI... (This may take a moment)');
-sol = optimize(constraints, gamma, options);
+sol = optimize(constraints, gamma, options); % Minimize gamma
 
 if sol.problem == 0
     K_hinf = double(L) / double(P);
@@ -165,18 +194,17 @@ if sol.problem == 0
     
     % VISUALIZATION D
     generate_plots_smooth(K_hinf, A, B, h, n_states, 'H-Inf Design');
-    animate_pendulums(K_hinf, A, B, h, 'H-Inf Animation');
 else
     disp('H-Infinity LMI was Infeasible');
     disp(sol.info);
 end
-
 
 % =========================================================================
 % FUNCTIONS 
 % =========================================================================
 
 function Kx = solveLMI(LMIconstr,P,L)
+    % Helper function to solve standard feasibility LMI
     options = sdpsettings('verbose', 0); 
     J = optimize(LMIconstr,[],options);
     if J.problem 
@@ -190,6 +218,7 @@ function Kx = solveLMI(LMIconstr,P,L)
 end
 
 function rho = isStable(F)
+    % Checks Spectral Radius (Theorem 3, Part I)
     rho = max(abs(eig(F)));
     if (rho > 1) 
         fprintf ('The absolute spectral radius is %.2f > 1 (Unstable).\n',rho)
@@ -200,8 +229,11 @@ end
 
 % --- HYBRID SMOOTH PLOTTING ---
 function generate_plots_smooth(K, A, B, h, n_states, plotTitle)
-    % Physics simulation settings
-    dt_physics = 0.01; 
+    % Simulates Hybrid System: 
+    % - Continuous Plant (ODE)
+    % - Discrete Controller (Sample & Hold)
+    
+    dt_physics = 0.01; % Fine integration step
     n_steps = 20; 
     t_final = h * n_steps;
     t_smooth = 0:dt_physics:t_final;
@@ -218,7 +250,7 @@ function generate_plots_smooth(K, A, B, h, n_states, plotTitle)
     for i = 1:length(t_smooth)
         t_now = t_smooth(i);
         
-        % Discrete Control Update
+        % Discrete Control Update (Zero Order Hold)
         if t_now >= next_sample_time
             if ~isempty(K)
                 u_current = K * current_x; 
@@ -228,7 +260,7 @@ function generate_plots_smooth(K, A, B, h, n_states, plotTitle)
             next_sample_time = next_sample_time + h;
         end
         
-        % Continuous Physics Update
+        % Continuous Physics Update (Euler integration for simplicity)
         dx = A * current_x + B * u_current;
         current_x = current_x + dx * dt_physics;
         
@@ -244,67 +276,5 @@ function generate_plots_smooth(K, A, B, h, n_states, plotTitle)
         subplot(2, 2, k);
         plot(t_smooth, x_hist_smooth(k, :), 'LineWidth', 1.5);
         title(titles{k}); grid on;
-    end
-end
-
-% --- ANIMATION ---
-function animate_pendulums(K, A, B, h, plotTitle)
-    dt_physics = 0.05; 
-    n_steps = 15; % Longer duration for animation
-    t_final = h * n_steps;
-    t = 0:dt_physics:t_final;
-    
-    x0 = [pi/6; 0; -pi/6; 0];
-    current_x = x0;
-    
-    u_current = [0;0];
-    next_sample_time = 0;
-    
-    figure('Name', plotTitle, 'Color', 'w');
-    l = 1; 
-    offset = 2; 
-    
-    plot([-1, offset+1], [0,0], 'k-', 'LineWidth', 2); hold on;
-    
-    rod1 = plot([0,0], [0,0], 'b-', 'LineWidth', 2);
-    bob1 = plot(0, 0, 'bo', 'MarkerSize', 10, 'MarkerFaceColor', 'b');
-    rod2 = plot([0,0], [0,0], 'r-', 'LineWidth', 2);
-    bob2 = plot(0, 0, 'ro', 'MarkerSize', 10, 'MarkerFaceColor', 'r');
-    spring = plot([0,0], [0,0], 'g--', 'LineWidth', 1);
-    
-    axis([-1.5, offset+1.5, -1.5, 1.5]); % Adjusted Y axis for inverted potential
-    axis equal; grid on;
-    title(['Animation: ' plotTitle]);
-    
-    disp('Starting animation...');
-    pause(0.5);
-    
-    for i = 1:length(t)
-        if t(i) >= next_sample_time
-            if ~isempty(K), u_current = K * current_x; end
-            next_sample_time = next_sample_time + h;
-        end
-        
-        dx = A * current_x + B * u_current;
-        current_x = current_x + dx * dt_physics;
-        
-        theta1 = current_x(1);
-        theta2 = current_x(3);
-        
-        % Inverted logic (matches your positive g/l)
-        x1 = l * sin(theta1);
-        y1 = l * cos(theta1); 
-        
-        x2 = offset + l * sin(theta2);
-        y2 = l * cos(theta2);
-        
-        set(rod1, 'XData', [0, x1], 'YData', [0, y1]);
-        set(bob1, 'XData', x1, 'YData', y1);
-        set(rod2, 'XData', [offset, x2], 'YData', [0, y2]);
-        set(bob2, 'XData', x2, 'YData', y2);
-        set(spring, 'XData', [x1, x2], 'YData', [y1, y2]);
-        
-        drawnow; 
-        pause(0.02);
     end
 end
