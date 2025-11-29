@@ -217,7 +217,6 @@ function Kx = solveLMI(LMIconstr,P,L)
 end
 
 function rho = isStable(F)
-    % Checks Spectral Radius (Theorem 3, Part I)
     rho = max(abs(eig(F)));
     if (rho > 1) 
         fprintf ('The absolute spectral radius is %.2f > 1 (Unstable).\n',rho)
