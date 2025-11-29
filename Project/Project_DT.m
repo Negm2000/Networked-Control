@@ -36,8 +36,7 @@ B2 = B(:,2);
 C1 = C(1:2,:);
 C2 = C(3:end,:);
 
-% Discretization (Zero-Order Hold)
-% Theory: Part I, Section B.1, Eq (iv)
+% Discretization
 % F = e^(Ah)
 F = expm(A*h); 
 % G = integral(e^(At)dt) * B
