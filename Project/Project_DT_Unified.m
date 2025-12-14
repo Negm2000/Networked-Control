@@ -4,7 +4,7 @@ close all
 
 % Project 7: Coupled Penduli
 
-k = 200;   % N/m (Spring stiffness)
+k = .200;   % N/m (Spring stiffness)
 % k = 2;   % N/m
 % k = 200; % N/m
 
@@ -14,6 +14,10 @@ g = 9.8; % m/s2 (Gravity)
 a = l;   % Spring attachment height
 h = 0.5; % s (Sampling time)
 N = 2;   % Number of subsystems
+
+% Control Structure Selection
+% Options: 'Centralized', 'Decentralized', 'Distributed_1to2', 'Distributed_Full'
+CONTROL_STRUCTURE = 'Distributed_Full';
 
 % Continuous-Time State Space Matrices (A, B, C)
 % State x = [theta1, d_theta1, theta2, d_theta2]'
@@ -52,11 +56,41 @@ H2 = H(3:end,:);
 % 2. Analysis
 % ---------------------------------
 % Unstable if any eigenvalue magnitude > 1
-disp("Check if the centralized discrete system is stable (Open Loop).")
+disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (Open Loop).'])
 isStable(F);
 disp("---------------------------------");
 disp("Controller Design With LMIs");
 disp("---------------------------------");
+
+% 0. Fixed Modes Analysis
+disp("Checking for Fixed Modes...");
+Baggr = {G1, G2};
+Caggr = {C1, C2};
+
+switch CONTROL_STRUCTURE
+    case 'Centralized'
+        K_pattern = ones(2,2);
+    case 'Decentralized'
+        K_pattern = eye(2);
+    case 'Distributed_1to2'
+        % Information flows 1 -> 2 (Subsystem 2 can read Output 1)
+        % K_pattern(i,j)=1 if j->i.
+        % i=2 (Receiver), j=1 (Sender). K_pattern(2,1)=1.
+        K_pattern = [1 0; 1 1];
+    case 'Distributed_Full'
+        K_pattern = ones(2,2);
+end
+
+fm = di_fixed_modes(F, Baggr, Caggr, N, K_pattern, 4);
+
+if isempty(fm)
+    disp("No Fixed Modes found. System is stabilizable with this structure.");
+else
+    disp("Fixed Modes found:");
+    disp(fm);
+    disp("System might NOT be stabilizable!");
+end
+
 % 3. Design - LMI Setup
 n_states = 4;
 m_inputs = 2;
@@ -64,44 +98,46 @@ m_inputs = 2;
 % Optimization Variables
 % P: Lyapunov matrix (P > 0)
 % L: Controller proxy variable (L = K*P) to linearize the inequality
-P=sdpvar(n_states);
-L=sdpvar(m_inputs,n_states);
+[P, L] = get_LMI_vars(CONTROL_STRUCTURE, n_states, m_inputs);
 
 %  A. Static State-Feedback Stability
 % ---------------------------------
 % Condition: (F+GK)P(F+GK)' - P < 0
 % Implemented using Schur Complement:
 LMIconstr_stability=[[P-F*P*F'-F*L'*G'-G*L*F' , G*L;
-    L'*G'         , P  ] >= 1e-2*eye(n_states*2)];
+    L'*G'         , P  ] >= 1e-6*eye(n_states*2)];
 
 Kx = solveLMI(LMIconstr_stability,P,L);
-F_cl = F + G*Kx;
-disp("Check if the centralized discrete system is stable (Stability LMI).")
-isStable(F_cl);
+if ~isempty(Kx)
+    F_cl = F + G*Kx;
+    disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (Stability LMI).'])
+    isStable(F_cl);
 
-% VISUALIZATION A
-generate_plots_discrete(F_cl, h, Kx, n_states, 'Stability LMI');
+    % VISUALIZATION A
+    analyze_system(F_cl, h, Kx, n_states, 'Stability LMI');
+end
 
 %  B. Pole Placement (Spectral Radius / Speed)
 % ---------------------------------
 % Goal: Force eigenvalues |lambda| < rho
 % How: Require (1/rho)*(F+GK) to be Schur stable.
-rho = 0.61;
+rho = 0.2;
 LMIconstr_speed=[[rho^2*P-F*P*F'-F*L'*G'-G*L*F' , G*L;
-    L'*G'           , P  ] >= 1e-2*eye(n_states*2)];
+    L'*G'           , P  ] >= 1e-6*eye(n_states*2)];
 
 Kx = solveLMI(LMIconstr_speed,P,L);
-F_cl = F + G*Kx;
-disp("Check if the centralized discrete system is stable (Speed LMI).")
-isStable(F_cl);
-% VISUALIZATION B
-generate_plots_discrete(F_cl, h, Kx, n_states, 'Speed LMI');
+if ~isempty(Kx)
+    F_cl = F + G*Kx;
+    disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (Speed LMI).'])
+    isStable(F_cl);
+    % VISUALIZATION B
+    analyze_system(F_cl, h, Kx, n_states, 'Speed LMI');
+end
 
 %  C. H2 Optimal Design
 % ---------------------------------
 % Goal: Minimize Trace(S), where S is an upper bound on output energy z_k.
-P=sdpvar(n_states);
-L=sdpvar(m_inputs,n_states);
+[P, L] = get_LMI_vars(CONTROL_STRUCTURE, n_states, m_inputs);
 
 % Bryson's Rule for Weights
 % Q_{ii} = (max acceptable value for x_i)^-2
@@ -134,26 +170,25 @@ J = optimize(LMIconstr_H2,trace(S),options);
 
 if J.problem
     disp("Unfeasible")
+else
+    L_val = double(L);
+    P_val = double(P);
+    Kx = L_val/P_val;
+
+    F_cl = F + G*Kx;
+    disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (H2).'])
+    isStable(F_cl);
+
+    % VISUALIZATION C
+    analyze_system(F_cl, h, Kx, n_states, 'H2 Design');
 end
-
-L_val = double(L);
-P_val = double(P);
-Kx = L_val/P_val; % Recover K
-
-F_cl = F + G*Kx;
-disp("Check if the centralized discrete system is stable (H2).")
-isStable(F_cl);
-
-% VISUALIZATION C
-generate_plots_discrete(F_cl, h, Kx, n_states, 'H2 Design');
 
 %  D. H-Infinity Robust Design
 % ---------------------------------
 % Goal: Minimize worst-case gain gamma from disturbance w to output z.
 % Uses the Bounded Real Lemma in LMI form.
 
-P = sdpvar(n_states);
-L = sdpvar(m_inputs,n_states);
+[P, L] = get_LMI_vars(CONTROL_STRUCTURE, n_states, m_inputs);
 gamma = sdpvar(1);
 
 Dw = zeros(size(H,1), size(Gw,2));
@@ -180,19 +215,16 @@ LMI_Hinf = [ LMI_11, LMI_12, LMI_13, LMI_14;
 
 constraints = [LMI_Hinf >= 1e-6 * eye(size(LMI_Hinf,1)), P >= 1e-6 * eye(n_states)];
 
-disp('Solving H-Infinity LMI...');
 sol = optimize(constraints, gamma, options); % Minimize gamma
 
 if sol.problem == 0
     K_hinf = double(L) / double(P);
-    fprintf('Optimal H-Infinity Gain (gamma): %.4f\n', double(gamma));
-
     F_cl_hinf = F + G * K_hinf;
-    disp("Check if the centralized discrete system is stable (H-inf).")
+    disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (H-inf).'])
     isStable(F_cl_hinf);
-
+    fprintf('Optimal H-Infinity Gain (gamma): %.4f\n', double(gamma));
     % VISUALIZATION D
-    generate_plots_discrete(F_cl_hinf, h, K_hinf, n_states, 'H-Inf Design');
+    analyze_system(F_cl_hinf, h, K_hinf, n_states, 'H-Inf Design');
 else
     disp('H-Infinity LMI was Infeasible');
     disp(sol.info);
@@ -202,8 +234,7 @@ end
 % -----------------------------------------------------------------
 % Goal: Force eigenvalues to be Positive Real to prevent ringing.
 % Method: Shifted Circle LMI. Center (alpha) = 0.4, Radius (r) = 0.4.
-P = sdpvar(n_states);
-L = sdpvar(m_inputs, n_states);
+[P, L] = get_LMI_vars(CONTROL_STRUCTURE, n_states, m_inputs);
 
 alpha = 0.4;   % Center of the circle
 r_damp = 0.4;  % Radius of the circle
@@ -217,13 +248,15 @@ LMIconstr_damping = [[r_damp^2*P - F_shifted*P*F_shifted' - F_shifted*L'*G' - G*
     L'*G'                                                      , P ] >= 1e-6*eye(n_states*2)];
 
 Kx = solveLMI(LMIconstr_damping,P,L);
-F_cl = F + G*Kx;
+if ~isempty(Kx)
+    F_cl = F + G*Kx;
 
-disp("Check if the centralized discrete system is stable (Damping LMI).")
-isStable(F_cl);
+    disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (Damping LMI).'])
+    isStable(F_cl);
 
-% VISUALIZATION E
-generate_plots_discrete(F_cl, h, Kx, n_states, 'Damping Design');
+    % VISUALIZATION E
+    analyze_system(F_cl, h, Kx, n_states, 'Damping Design');
+end
 
 %  F. Multi-Objective Design
 % -----------------------------------------------------------------
@@ -237,8 +270,7 @@ disp("Part F: Multi-Objective Design");
 disp("---------------------------------");
 
 % 1. Define Variables
-P = sdpvar(n_states, n_states, 'symmetric');
-L = sdpvar(m_inputs, n_states, 'full');
+[P, L] = get_LMI_vars(CONTROL_STRUCTURE, n_states, m_inputs);
 Kl = sdpvar(1, 1); % Scalar proxy for norm(L)
 Ky = sdpvar(1, 1); % Scalar proxy for norm(inv(P))
 
@@ -284,12 +316,11 @@ Constraints = [LMI_Speed, LMI_Damping, LMI_Kl, LMI_Ky, P >= 1e-6*eye(n_states)];
 % Weighting Ky heavily forces P to be "well conditioned" (numerically stable)
 J = 1*Kl + 100*Ky;
 
-options = sdpsettings('verbose', 0, 'solver', 'sdpt3'); % SDPT3 is often more robust than SeDuMi for this
-disp('Solving Split-Variable Multi-Objective LMI...');
+options = sdpsettings('verbose', 0, 'solver', 'sdpt3');
+
 sol = optimize(Constraints, J, options);
 
 if sol.problem == 0
-    % Recovery
     L_val = double(L);
     P_val = double(P);
     K_multi = L_val / P_val;
@@ -303,7 +334,7 @@ if sol.problem == 0
     isStable(F_cl_multi);
 
     % VISUALIZATION F
-    generate_plots_discrete(F_cl_multi, h, K_multi, n_states, 'Multi-Objective');
+    analyze_system(F_cl_multi, h, K_multi, n_states, 'Multi-Objective');
 else
     disp('LMI Infeasible.');
     disp(sol.info);
@@ -314,96 +345,133 @@ end
 % =========================================================================
 
 function Kx = solveLMI(LMIconstr,P,L)
-    options = sdpsettings('verbose', 0);
-    J = optimize(LMIconstr,[],options);
-    if J.problem
-        disp("Unfeasible")
-        Kx = [];
-        return
-    end
-    L = double(L);
-    P = double(P);
-    Kx = L/P;
+options = sdpsettings('verbose', 0);
+J = optimize(LMIconstr,[],options);
+if J.problem
+    disp("Unfeasible")
+    Kx = [];
+    return
+end
+L = double(L);
+P = double(P);
+Kx = L/P;
 end
 
 function rho = isStable(F)
-    eigenvals = eig(F);
-    [rho, rho_idx] = max(abs(eigenvals));
-    if (rho >= 1)
-        fprintf ('The spectral radius is |%.2f| >= 1 (Unstable).\n',eigenvals(rho_idx));
-    else
-        fprintf("The spectral radius is  |%.2f| < 1 (Stable).\n", eigenvals(rho_idx));
-    end
+eigenvals = eig(F);
+[rho, rho_idx] = max(abs(eigenvals));
+if (rho >= 1)
+    fprintf ('The spectral radius is |%.2f| >= 1 (Unstable).\n',eigenvals(rho_idx));
+else
+    fprintf("The spectral radius is  |%.2f| < 1 (Stable).\n", eigenvals(rho_idx));
+end
 end
 
-function generate_plots_discrete(F_cl, h, K, n_states, plotTitle)
-    % 1. Simulation
-    [t, x_hist, u_hist] = simulate_discrete(F_cl, h, K, n_states);
+function analyze_system(F_cl, h, K, n_states, plotTitle)
+% 1. Simulation
+[t, x_hist, u_hist] = simulate_discrete(F_cl, h, K, n_states);
 
-    % 2. Plotting
-    plot_simulation(t, x_hist, plotTitle);
+% 2. Plotting
+plot_simulation(t, x_hist, plotTitle);
 
-    % 3. Metrics
-    calculate_metrics(x_hist, u_hist, K, F_cl, h, t);
+% 3. Metrics
+calculate_metrics(x_hist, u_hist, K, F_cl, h, t);
 end
 
 function [t, x_hist, u_hist] = simulate_discrete(F_cl, h, K, n_states)
-    n_steps = 50;
-    t = 0:h:(h*n_steps);
+n_steps = 50;
+t = 0:h:(h*n_steps);
 
-    x0 = [pi/6; 0; -pi/6; 0];
-    x_hist = zeros(n_states, length(t));
-    x_hist(:, 1) = x0;
+x0 = [pi/6; 0; -pi/6; 0];
+x_hist = zeros(n_states, length(t));
+x_hist(:, 1) = x0;
 
-    for k = 1:n_steps
-        x_hist(:, k+1) = F_cl * x_hist(:, k);
-    end
-    u_hist = K * x_hist;
+for k = 1:n_steps
+    x_hist(:, k+1) = F_cl * x_hist(:, k);
+end
+u_hist = K * x_hist;
 end
 
 function plot_simulation(t, x_hist, plotTitle)
-    figure('Name', plotTitle);
-    sgtitle([plotTitle ' (Discrete Simulation)']);
+figure('Name', plotTitle);
+sgtitle([plotTitle ' (Discrete Simulation)']);
 
-    titles = {'Pos 1 (x1)', 'Vel 1 (x2)', 'Pos 2 (x3)', 'Vel 2 (x4)'};
-    for k = 1:4
-        subplot(2, 2, k);
-        plot(t, x_hist(k, :), '-o', 'LineWidth', 1.5, 'MarkerSize', 4);
-        title(titles{k});
-        grid on;
-        xlabel('Time (s)');
-    end
+titles = {'Pos 1 (x1)', 'Vel 1 (x2)', 'Pos 2 (x3)', 'Vel 2 (x4)'};
+for k = 1:4
+    subplot(2, 2, k);
+    plot(t, x_hist(k, :), '-o', 'LineWidth', 1.5, 'MarkerSize', 4);
+    title(titles{k});
+    grid on;
+    xlabel('Time (s)');
+end
 end
 
 function calculate_metrics(x_hist, u_hist, K, F_cl, h, t)
-    % Measured settling time 2% criterion
-    % equivalent to sqrt(theta1^2 + theta1_dot^2 + theta2^2 + theta2_dot^2)
-    traj_norm = vecnorm(x_hist);
-    threshold = 0.02 * max(traj_norm);
-    unsettled_indices = find(traj_norm > threshold);
+% Measured settling time 2% criterion
+% equivalent to sqrt(theta1^2 + theta1_dot^2 + theta2^2 + theta2_dot^2)
+traj_norm = vecnorm(x_hist);
+threshold = 0.02 * max(traj_norm);
+unsettled_indices = find(traj_norm > threshold);
 
-    if isempty(unsettled_indices)
-        Ts = 0;
-    else
-        Ts = t(unsettled_indices(end));
-    end
+if isempty(unsettled_indices)
+    Ts = 0;
+else
+    Ts = t(unsettled_indices(end));
+end
 
-    % Performance Metrics
-    % First sum sums over all inputs, second sum sums over all time
-    cont_energy = sum(sum(u_hist.^2)) * h;
-    state_energy = sum(sum(x_hist.^2)) * h;
+% Performance Metrics
+% First sum sums over all inputs, second sum sums over all time
+cont_energy = sum(sum(u_hist.^2)) * h;
+state_energy = sum(sum(x_hist.^2)) * h;
 
-    % Theoretical Settling Time
-    rho = max(abs(eig(F_cl)));
-    if rho < 1
-        Ts_theory = (log(0.02) / log(rho)) * h;
-    else
-        Ts_theory = Inf;
-    end
+% Theoretical Settling Time
+rho = max(abs(eig(F_cl)));
+if rho < 1
+    Ts_theory = (log(0.02) / log(rho)) * h;
+else
+    Ts_theory = Inf;
+end
 
-    fprintf("- Theoretical Max Settling Time (2%%) = %.2f\n", Ts_theory);
-    fprintf("- Measured Settling Time (2%%) (Ts) = %.2f\n", Ts);
-    fprintf("- Controller Gain Norm |K| = %.2f\n", norm(K));
-    fprintf("- Simulation Control Energy (Ju) = %.2f\n", cont_energy);
-    fprintf("- Simulation State Energy (Jx) = %.2f\n\n", state_energy);
+fprintf("- Theoretical Max Settling Time (2%%) = %.2f\n", Ts_theory);
+fprintf("- Measured Settling Time (2%%) (Ts) = %.2f\n", Ts);
+fprintf("- Controller Gain Norm |K| = %.2f\n", norm(K));
+fprintf("- Simulation Control Energy (Ju) = %.2f\n", cont_energy);
+fprintf("- Simulation State Energy (Jx) = %.2f\n\n", state_energy);
+end
+
+function [P, L] = get_LMI_vars(structure_mode, n_states, m_inputs)
+switch structure_mode
+    case 'Centralized'
+        P = sdpvar(n_states, n_states, 'symmetric');
+        L = sdpvar(m_inputs, n_states, 'full');
+
+    case 'Decentralized'
+        % Block Diagonal P and L (2 subsystems of size 2)
+        P1 = sdpvar(2,2, 'symmetric'); P2 = sdpvar(2,2, 'symmetric');
+        P = blkdiag(P1, P2);
+        L1 = sdpvar(1,2, 'full'); L2 = sdpvar(1,2, 'full');
+        L = blkdiag(L1, L2);
+
+    case 'Distributed_1to2'
+        % Block Diagonal P (Local Stability)
+        P1 = sdpvar(2,2, 'symmetric'); P2 = sdpvar(2,2, 'symmetric');
+        P = blkdiag(P1, P2);
+
+        % L follows structure: [L11 L12; L21 L22]
+        % Subsys 1 is independent: L12 = 0 (No comms from 2->1)
+        % Subsys 2 sees Subsys 1: L21 != 0 (Comms from 1->2)
+        L11 = sdpvar(1,2,'full'); L12 = zeros(1,2);
+        L21 = sdpvar(1,2,'full'); L22 = sdpvar(1,2,'full');
+        L = [L11, L12; L21, L22];
+
+    case 'Distributed_Full'
+        % Block Diagonal P (Local Stability)
+        P1 = sdpvar(2,2, 'symmetric'); P2 = sdpvar(2,2, 'symmetric');
+        P = blkdiag(P1, P2);
+        % Full L (Neighbor Communication)
+        L = sdpvar(m_inputs, n_states, 'full');
+
+    otherwise
+        error('Unknown CONTROL_STRUCTURE: %s', structure_mode);
+end
 end
