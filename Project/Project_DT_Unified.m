@@ -69,19 +69,19 @@ Caggr = {C1, C2};
 
 switch CONTROL_STRUCTURE
     case 'Centralized'
-        K_pattern = ones(2,2);
+        ContStruc = ones(2,2);
     case 'Decentralized'
-        K_pattern = eye(2);
+        ContStruc = eye(2);
     case 'Distributed_1to2'
         % Information flows 1 -> 2 (Subsystem 2 can read Output 1)
-        % K_pattern(i,j)=1 if j->i.
-        % i=2 (Receiver), j=1 (Sender). K_pattern(2,1)=1.
-        K_pattern = [1 0; 1 1];
+        % ContStruc(i,j)=1 if j->i.
+        % i=2 (Receiver), j=1 (Sender). ContStruc(2,1)=1.
+        ContStruc = [1 0; 1 1];
     case 'Distributed_Full'
-        K_pattern = ones(2,2);
+        ContStruc = ones(2,2);
 end
 
-fm = di_fixed_modes(F, Baggr, Caggr, N, K_pattern, 4);
+fm = di_fixed_modes(F, Baggr, Caggr, N, ContStruc, 4);
 
 if isempty(fm)
     disp("No Fixed Modes found. System is stabilizable with this structure.");
