@@ -105,7 +105,7 @@ m_inputs = 2;
 % Condition: (F+GK)P(F+GK)' - P < 0
 % Implemented using Schur Complement:
 LMIconstr_stability=[[P-F*P*F'-F*L'*G'-G*L*F' , G*L;
-    L'*G'         , P  ] >= 1e-6*eye(n_states*2)];
+    L'*G'         , P  ] >= 1e-9*eye(n_states*2)];
 
 Kx = solveLMI(LMIconstr_stability,P,L);
 if ~isempty(Kx)
@@ -265,9 +265,6 @@ end
 % 2. Damping (Cardioid)
 % 3. Effort Minimization using variables Kl and Ky
 
-disp("---------------------------------");
-disp("Part F: Multi-Objective Design");
-disp("---------------------------------");
 
 % 1. Define Variables
 [P, L] = get_LMI_vars(CONTROL_STRUCTURE, n_states, m_inputs);
@@ -275,9 +272,8 @@ Kl = sdpvar(1, 1); % Scalar proxy for norm(L)
 Ky = sdpvar(1, 1); % Scalar proxy for norm(inv(P))
 
 % 2. Tuning Parameters
-% Relaxed speed constraint to allow the solver "breathing room"
-% for the control effort minimization.
-rho_speed = 0.35;  % Decay rate (Close to 1 is easier, Close to 0 is faster)
+% Relaxed speed constraint to allow the solver breathing room for the control effort minimization.
+rho_speed = 0.35;  
 
 % Damping (Cardioid) parameters
 % We keep the region large to ensure feasibility
@@ -324,14 +320,11 @@ if sol.problem == 0
     L_val = double(L);
     P_val = double(P);
     K_multi = L_val / P_val;
-
-    disp('Feasible Solution Found!');
-    fprintf('Minimization Result: Kl=%.2f, Ky=%.2f\n', double(Kl), double(Ky));
-
     % Verification
     F_cl_multi = F + G * K_multi;
     disp("Check stability (Multi-Objective).")
     isStable(F_cl_multi);
+    fprintf('Minimization Result: Kl=%.2f, Ky=%.2f\n', double(Kl), double(Ky));
 
     % VISUALIZATION F
     analyze_system(F_cl_multi, h, K_multi, n_states, 'Multi-Objective');
