@@ -302,11 +302,8 @@ if sol.problem == 0
     disp("Check stability (Multi-Objective).")
     isStable(F_cl_multi);
 
-    % cl_poles = eig(F_cl_multi);
-    % disp("Closed-Loop Eigenvalues:");
-    % disp(cl_poles);
     % VISUALIZATION F
-    generate_plots_discrete(F_cl_multi, h, K_multi, n_states, 'F. Robust Multi-Objective');
+    generate_plots_discrete(F_cl_multi, h, K_multi, n_states, 'Multi-Objective');
 else
     disp('LMI Infeasible.');
     disp(sol.info);
@@ -317,96 +314,96 @@ end
 % =========================================================================
 
 function Kx = solveLMI(LMIconstr,P,L)
-options = sdpsettings('verbose', 0);
-J = optimize(LMIconstr,[],options);
-if J.problem
-    disp("Unfeasible")
-    Kx = [];
-    return
-end
-L = double(L);
-P = double(P);
-Kx = L/P;
+    options = sdpsettings('verbose', 0);
+    J = optimize(LMIconstr,[],options);
+    if J.problem
+        disp("Unfeasible")
+        Kx = [];
+        return
+    end
+    L = double(L);
+    P = double(P);
+    Kx = L/P;
 end
 
 function rho = isStable(F)
-eigenvals = eig(F);
-[rho, rho_idx] = max(abs(eigenvals));
-if (rho >= 1)
-    fprintf ('The spectral radius is |%.2f| >= 1 (Unstable).\n',eigenvals(rho_idx));
-else
-    fprintf("The spectral radius is  |%.2f| < 1 (Stable).\n", eigenvals(rho_idx));
-end
+    eigenvals = eig(F);
+    [rho, rho_idx] = max(abs(eigenvals));
+    if (rho >= 1)
+        fprintf ('The spectral radius is |%.2f| >= 1 (Unstable).\n',eigenvals(rho_idx));
+    else
+        fprintf("The spectral radius is  |%.2f| < 1 (Stable).\n", eigenvals(rho_idx));
+    end
 end
 
 function generate_plots_discrete(F_cl, h, K, n_states, plotTitle)
-% 1. Simulation
-[t, x_hist, u_hist] = simulate_discrete(F_cl, h, K, n_states);
+    % 1. Simulation
+    [t, x_hist, u_hist] = simulate_discrete(F_cl, h, K, n_states);
 
-% 2. Plotting
-plot_simulation(t, x_hist, plotTitle);
+    % 2. Plotting
+    plot_simulation(t, x_hist, plotTitle);
 
-% 3. Metrics
-calculate_metrics(x_hist, u_hist, K, F_cl, h, t);
+    % 3. Metrics
+    calculate_metrics(x_hist, u_hist, K, F_cl, h, t);
 end
 
 function [t, x_hist, u_hist] = simulate_discrete(F_cl, h, K, n_states)
-n_steps = 50;
-t = 0:h:(h*n_steps);
+    n_steps = 50;
+    t = 0:h:(h*n_steps);
 
-x0 = [pi/6; 0; -pi/6; 0];
-x_hist = zeros(n_states, length(t));
-x_hist(:, 1) = x0;
+    x0 = [pi/6; 0; -pi/6; 0];
+    x_hist = zeros(n_states, length(t));
+    x_hist(:, 1) = x0;
 
-for k = 1:n_steps
-    x_hist(:, k+1) = F_cl * x_hist(:, k);
-end
-u_hist = K * x_hist;
+    for k = 1:n_steps
+        x_hist(:, k+1) = F_cl * x_hist(:, k);
+    end
+    u_hist = K * x_hist;
 end
 
 function plot_simulation(t, x_hist, plotTitle)
-figure('Name', plotTitle);
-sgtitle([plotTitle ' (Discrete Simulation)']);
+    figure('Name', plotTitle);
+    sgtitle([plotTitle ' (Discrete Simulation)']);
 
-titles = {'Pos 1 (x1)', 'Vel 1 (x2)', 'Pos 2 (x3)', 'Vel 2 (x4)'};
-for k = 1:4
-    subplot(2, 2, k);
-    plot(t, x_hist(k, :), '-o', 'LineWidth', 1.5, 'MarkerSize', 4);
-    title(titles{k});
-    grid on;
-    xlabel('Time (s)');
-end
+    titles = {'Pos 1 (x1)', 'Vel 1 (x2)', 'Pos 2 (x3)', 'Vel 2 (x4)'};
+    for k = 1:4
+        subplot(2, 2, k);
+        plot(t, x_hist(k, :), '-o', 'LineWidth', 1.5, 'MarkerSize', 4);
+        title(titles{k});
+        grid on;
+        xlabel('Time (s)');
+    end
 end
 
 function calculate_metrics(x_hist, u_hist, K, F_cl, h, t)
-% Measured settling time 2% criterion
-% equivalent to sqrt(theta1^2 + theta1_dot^2 + theta2^2 + theta2_dot^2)
-traj_norm = vecnorm(x_hist);
-threshold = 0.02 * max(traj_norm);
-unsettled_indices = find(traj_norm > threshold);
+    % Measured settling time 2% criterion
+    % equivalent to sqrt(theta1^2 + theta1_dot^2 + theta2^2 + theta2_dot^2)
+    traj_norm = vecnorm(x_hist);
+    threshold = 0.02 * max(traj_norm);
+    unsettled_indices = find(traj_norm > threshold);
 
-if isempty(unsettled_indices)
-    Ts = 0;
-else
-    Ts = t(unsettled_indices(end));
-end
+    if isempty(unsettled_indices)
+        Ts = 0;
+    else
+        Ts = t(unsettled_indices(end));
+    end
 
-% Performance Metrics
-% First sum sums over all inputs, second sum sums over all time
-cont_energy = sum(sum(u_hist.^2)) * h;
-state_energy = sum(sum(x_hist.^2)) * h;
+    % Performance Metrics
+    % First sum sums over all inputs, second sum sums over all time
+    cont_energy = sum(sum(u_hist.^2)) * h;
+    state_energy = sum(sum(x_hist.^2)) * h;
 
-% Theoretical Settling Time
-rho = max(abs(eig(F_cl)));
-if rho < 1
-    Ts_theory = (log(0.02) / log(rho)) * h;
-else
-    Ts_theory = Inf;
-end
+    % Theoretical Settling Time
+    rho = max(abs(eig(F_cl)));
+    if rho < 1
+        Ts_theory = (log(0.02) / log(rho)) * h;
+    else
+        Ts_theory = Inf;
+    end
 
-fprintf("- Theoretical Max Settling Time (2%%) = %.2f\n", Ts_theory);
-fprintf("- Measured Settling Time (2%%) (Ts) = %.2f\n", Ts);
-fprintf("- Controller Gain Norm |K| = %.2f\n", norm(K));
-fprintf("- Simulation Control Energy (Ju) = %.2f\n", cont_energy);
-fprintf("- Simulation State Energy (Jx) = %.2f\n\n", state_energy);
+    fprintf("- Theoretical Max Settling Time (2%%) = %.2f\n", Ts_theory);
+    fprintf("- Measured Settling Time (2%%) (Ts) = %.2f\n", Ts);
+    fprintf("- Controller Gain Norm |K| = %.2f\n", norm(K));
+    fprintf("- Simulation Control Energy (Ju) = %.2f\n", cont_energy);
+    fprintf("- Simulation State Energy (Jx) = %.2f\n\n", state_energy);
 end
