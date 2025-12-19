@@ -352,16 +352,16 @@ for k_val = [0.2, 2, 200]
 end % End of K loop
 
 function Kx = solveLMI(LMIconstr,P,L)
-options = sdpsettings('verbose', 0);
-J = optimize(LMIconstr,[],options);
-if J.problem
-    disp("Unfeasible")
-    Kx = [];
-    return
-end
-L = double(L);
-P = double(P);
-Kx = L/P;
+    options = sdpsettings('verbose', 0);
+    J = optimize(LMIconstr,[],options);
+    if J.problem
+        disp("Unfeasible")
+        Kx = [];
+        return
+    end
+    L = double(L);
+    P = double(P);
+    Kx = L/P;
 end
 
 function rho = isStable(F)
