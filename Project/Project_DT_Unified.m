@@ -248,8 +248,8 @@ for k_val = [0.2, 2, 200]
     % Method: Shifted Circle LMI. Center (alpha) = 0.4, Radius (r) = 0.4.
     [P, L] = get_LMI_vars(CONTROL_STRUCTURE, n_states, m_inputs);
 
-    alpha = 0.4;   % Center of the circle
-    r_damp = 0.4;  % Radius of the circle
+    alpha = 0.3;   % Center of the circle
+    r_damp = 0.3;  % Radius of the circle
 
     % We simply shift the A matrix (F) by alpha*Identity
     F_shifted = F - alpha * eye(n_states);
