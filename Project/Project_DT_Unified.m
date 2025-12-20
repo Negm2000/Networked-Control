@@ -5,7 +5,7 @@ close all
 % Project 7: Coupled Penduli
 % Control Structure Selection
 % Options: 'Centralized', 'Decentralized', 'Distributed_2to1', 'Distributed_Full'
-CONTROL_STRUCTURE = 'Distributed_2to1';
+CONTROL_STRUCTURE = 'Centralized';
 global FIG_DIR;
 FIG_DIR = "figs_" + CONTROL_STRUCTURE;
 
@@ -390,7 +390,7 @@ function [t, x_hist, u_hist] = simulate_discrete(F_cl, h, K, n_states)
 n_steps = 50;
 t = 0:h:(h*n_steps);
 
-x0 = [pi/6; 0; pi/6; 0];
+x0 = [pi/6; 0; -pi/6; 0];
 x_hist = zeros(n_states, length(t));
 x_hist(:, 1) = x0;
 
@@ -436,10 +436,22 @@ end
 cont_energy = sum(sum(u_hist.^2)) * h;
 state_energy = sum(sum(x_hist.^2)) * h;
 
-% Theoretical Settling Time
-rho = max(abs(eig(F_cl)));
-if rho < 1
-    Ts_theory = (log(0.02) / log(rho)) * h;
+% Theoretical Settling Time (Rigorous Loop)
+threshold = 0.02; % 2% decay
+norm_val = 1;
+k_steps = 0;
+max_steps = 1000; % Safety break
+
+while norm_val > threshold && k_steps < max_steps
+    k_steps = k_steps + 1;
+    F_power = F_cl^k_steps;
+    % The 2-norm of the matrix power represents the maximum
+    % amplification of any initial vector x0.
+    norm_val = norm(F_power);
+end
+
+if k_steps < max_steps
+    Ts_theory = k_steps * h;
 else
     Ts_theory = Inf;
 end
