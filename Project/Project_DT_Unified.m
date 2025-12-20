@@ -5,7 +5,7 @@ close all
 % Project 7: Coupled Penduli
 % Control Structure Selection
 % Options: 'Centralized', 'Decentralized', 'Distributed_2to1', 'Distributed_Full'
-CONTROL_STRUCTURE = 'Centralized';
+CONTROL_STRUCTURE = 'Distributed_2to1';
 global FIG_DIR;
 FIG_DIR = "figs_" + CONTROL_STRUCTURE;
 
@@ -178,6 +178,7 @@ for k_val = [0.2, 2, 200]
 
     if J.problem
         disp("Unfeasible")
+        check(LMIconstr_H2)
     else
         L_val = double(L);
         P_val = double(P);
@@ -352,16 +353,16 @@ for k_val = [0.2, 2, 200]
 end % End of K loop
 
 function Kx = solveLMI(LMIconstr,P,L)
-    options = sdpsettings('verbose', 0);
-    J = optimize(LMIconstr,[],options);
-    if J.problem
-        disp("Unfeasible")
-        Kx = [];
-        return
-    end
-    L = double(L);
-    P = double(P);
-    Kx = L/P;
+options = sdpsettings('verbose', 0);
+J = optimize(LMIconstr,[],options);
+if J.problem
+    disp("Unfeasible")
+    Kx = [];
+    return
+end
+L = double(L);
+P = double(P);
+Kx = L/P;
 end
 
 function rho = isStable(F)
@@ -407,7 +408,7 @@ sgtitle([strrep(plotTitle, '_', ' ') ' (Discrete Simulation)']);
 titles = {'Pos 1 (x1)', 'Vel 1 (x2)', 'Pos 2 (x3)', 'Vel 2 (x4)'};
 for k = 1:4
     subplot(2, 2, k);
-    plot(t, x_hist(k, :), '-o', 'LineWidth', 1.5, 'MarkerSize', 4);
+    stairs(t, x_hist(k, :), '-o', 'LineWidth', 1.5, 'MarkerSize', 4);
     title(titles{k});
     grid on;
     xlabel('Time (s)');
