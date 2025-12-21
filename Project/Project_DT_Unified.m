@@ -4,8 +4,9 @@ close all
 
 % Project 7: Coupled Penduli
 % Control Structure Selection
-% Options: 'Centralized', 'Decentralized', 'Distributed_2to1', 'Distributed_Full'
-CONTROL_STRUCTURE = 'Distributed_2to1';
+% Options: 'Centralized', 'Decentralized', Distributed_1to2,'Distributed_2to1', 'Distributed_Full'
+CONTROL_STRUCTURE = 'Decentralized';
+
 global FIG_DIR;
 FIG_DIR = "figs_" + CONTROL_STRUCTURE;
 
@@ -13,6 +14,11 @@ if ~exist(FIG_DIR, 'dir')
     mkdir(FIG_DIR);
 end
 
+% Start logging to a file
+log_file = fullfile(pwd, FIG_DIR + "/log_" + CONTROL_STRUCTURE + ".txt");
+diary(log_file);
+fprintf('Logging to: %s\n', log_file);
+diary on;
 for k_val = [0.2, 2, 200]
     k = k_val;
     fprintf('\n=================================\n');
@@ -66,6 +72,7 @@ for k_val = [0.2, 2, 200]
     % Unstable if any eigenvalue magnitude > 1
     disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (Open Loop).'])
     isStable(F);
+    eig(F)
     disp("---------------------------------");
     disp("Controller Design With LMIs");
     disp("---------------------------------");
@@ -81,10 +88,11 @@ for k_val = [0.2, 2, 200]
         case 'Decentralized'
             ContStruc = eye(2);
         case 'Distributed_2to1'
-            % Information flows 1 -> 2 (Subsystem 2 can read Output 1)
-            % ContStruc(i,j)=1 if j->i.
-            % i=2 (Receiver), j=1 (Sender). ContStruc(2,1)=1.
+            % Information flows 2 -> 1 (Subsystem 1 can read Output 2)
             ContStruc = [1 1; 0 1];
+        case 'Distributed_1to2'
+            % Information flows 1 -> 2 (Subsystem 2 can read Output 1)
+            ContStruc = [1 0; 1 1];
         case 'Distributed_Full'
             ContStruc = ones(2,2);
     end
@@ -115,7 +123,7 @@ for k_val = [0.2, 2, 200]
     LMIconstr_stability=[[P-F*P*F'-F*L'*G'-G*L*F' , G*L;
         L'*G'         , P  ] >= 1e-6*eye(n_states*2)];
 
-    Kx = solveLMI(LMIconstr_stability,P,L);
+    Kx = solveLMI(LMIconstr_stability,P,L)
     if ~isempty(Kx)
         F_cl = F + G*Kx;
         disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (Stability LMI).'])
@@ -129,11 +137,11 @@ for k_val = [0.2, 2, 200]
     % ---------------------------------
     % Goal: Force eigenvalues |lambda| < rho
     % How: Require (1/rho)*(F+GK) to be Schur stable.
-    rho = 0.37;
+    rho = 0.5;
     LMIconstr_speed=[[rho^2*P-F*P*F'-F*L'*G'-G*L*F' , G*L;
         L'*G'           , P  ] >= 1e-6*eye(n_states*2)];
 
-    Kx = solveLMI(LMIconstr_speed,P,L);
+    Kx = solveLMI(LMIconstr_speed,P,L)
     if ~isempty(Kx)
         F_cl = F + G*Kx;
         disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (Speed LMI).'])
@@ -183,7 +191,7 @@ for k_val = [0.2, 2, 200]
     if is_feasible
         L_val = double(L);
         P_val = double(P);
-        Kx = L_val/P_val;
+        Kx = L_val/P_val
 
         F_cl = F + G*Kx;
         disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (H2).'])
@@ -236,7 +244,7 @@ for k_val = [0.2, 2, 200]
     is_feasible = all(residuals > -1e-7); % Use a small buffer for numerical noise
 
     if is_feasible
-        K_hinf = double(L) / double(P);
+        K_hinf = double(L) / double(P)
         F_cl_hinf = F + G * K_hinf;
         disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (H-inf).'])
         isStable(F_cl_hinf);
@@ -265,7 +273,7 @@ for k_val = [0.2, 2, 200]
     LMIconstr_damping = [[r_damp^2*P - F_shifted*P*F_shifted' - F_shifted*L'*G' - G*L*F_shifted', G*L;
         L'*G'                                                      , P ] >= 1e-6*eye(n_states*2)];
 
-    Kx = solveLMI(LMIconstr_damping,P,L);
+    Kx = solveLMI(LMIconstr_damping,P,L)
     if ~isempty(Kx)
         F_cl = F + G*Kx;
 
@@ -341,7 +349,7 @@ for k_val = [0.2, 2, 200]
     if is_feasible
         L_val = double(L);
         P_val = double(P);
-        K_multi = L_val / P_val;
+        K_multi = L_val / P_val
         % Verification
         F_cl_multi = F + G * K_multi;
         disp("Check stability (Multi-Objective).")
@@ -356,6 +364,9 @@ for k_val = [0.2, 2, 200]
         disp(sol.info);
     end
 end % End of K loop
+
+% Stop logging
+diary off;
 
 function Kx = solveLMI(LMIconstr,P,L)
 options = sdpsettings('verbose', 0);
