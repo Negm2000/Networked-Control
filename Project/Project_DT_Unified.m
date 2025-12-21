@@ -5,7 +5,7 @@ close all
 % Project 7: Coupled Penduli
 % Control Structure Selection
 % Options: 'Centralized', 'Decentralized', Distributed_1to2,'Distributed_2to1', 'Distributed_Full'
-CONTROL_STRUCTURE = 'Decentralized';
+CONTROL_STRUCTURE = 'Centralized';
 
 global FIG_DIR;
 FIG_DIR = "figs_" + CONTROL_STRUCTURE;
@@ -72,7 +72,7 @@ for k_val = [0.2, 2, 200]
     % Unstable if any eigenvalue magnitude > 1
     disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (Open Loop).'])
     isStable(F);
-    eig(F)
+    eig(F);
     disp("---------------------------------");
     disp("Controller Design With LMIs");
     disp("---------------------------------");
@@ -123,7 +123,7 @@ for k_val = [0.2, 2, 200]
     LMIconstr_stability=[[P-F*P*F'-F*L'*G'-G*L*F' , G*L;
         L'*G'         , P  ] >= 1e-6*eye(n_states*2)];
 
-    Kx = solveLMI(LMIconstr_stability,P,L)
+    Kx = solveLMI(LMIconstr_stability,P,L);
     if ~isempty(Kx)
         F_cl = F + G*Kx;
         disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (Stability LMI).'])
@@ -404,6 +404,7 @@ function analyze_system(F_cl, h, K, n_states, plotTitle)
 
 % 2. Plotting
 plot_simulation(t, x_hist, plotTitle);
+plot_eigenvalues(F_cl, plotTitle);
 
 % 3. Metrics
 calculate_metrics(x_hist, u_hist, K, F_cl, h, t);
@@ -521,4 +522,27 @@ switch structure_mode
     otherwise
         error('Unknown CONTROL_STRUCTURE: %s', structure_mode);
 end
+end
+
+function plot_eigenvalues(F_cl, plotTitle)
+global FIG_DIR;
+figure('Name', [plotTitle '_Eigenvalues']);
+hold on;
+
+% Unit Circle
+theta = 0:0.01:2*pi;
+plot(cos(theta), sin(theta), 'k--', 'LineWidth', 1);
+
+% Eigenvalues
+evals = eig(F_cl);
+plot(real(evals), imag(evals), 'rx', 'MarkerSize', 10, 'LineWidth', 2);
+
+grid on;
+axis equal;
+xlabel('Real Axis');
+ylabel('Imaginary Axis');
+title(['Closed-Loop Eigenvalues: ' strrep(plotTitle, '_', ' ')]);
+
+% Save
+saveas(gcf, fullfile(FIG_DIR, [plotTitle '_eigenvalues.png']));
 end
