@@ -5,7 +5,7 @@ close all
 % Project 7: Coupled Penduli
 % Control Structure Selection
 % Options: 'Centralized', 'Decentralized', 'Distributed_2to1', 'Distributed_Full'
-CONTROL_STRUCTURE = 'Centralized';
+CONTROL_STRUCTURE = 'Distributed_2to1';
 global FIG_DIR;
 FIG_DIR = "figs_" + CONTROL_STRUCTURE;
 
@@ -70,7 +70,7 @@ for k_val = [0.2, 2, 200]
     disp("Controller Design With LMIs");
     disp("---------------------------------");
 
-    % 0. Fixed Modes Analysis
+    % Fixed Modes Analysis
     disp("Checking for Fixed Modes...");
     Baggr = {G1, G2};
     Caggr = {C1, C2};
@@ -176,10 +176,11 @@ for k_val = [0.2, 2, 200]
     % Minimize Trace(S) ==> Minimize H2 Norm
     J = optimize(LMIconstr_H2,trace(S),options);
 
-    if J.problem
-        disp("Unfeasible")
-        check(LMIconstr_H2)
-    else
+    % Check residuals manually instead of relying on the 'J.problem' flag
+    residuals = check(LMIconstr_H2);
+    is_feasible = all(residuals > -1e-7); % Use a small buffer for numerical noise
+
+    if is_feasible
         L_val = double(L);
         P_val = double(P);
         Kx = L_val/P_val;
@@ -190,6 +191,10 @@ for k_val = [0.2, 2, 200]
 
         % VISUALIZATION C
         analyze_system(F_cl, h, Kx, n_states, sprintf('K=%.1f_H2_Design', k));
+    else
+        disp('H2 LMI was Infeasible');
+        check(LMIconstr_H2); % Display residuals to show where the problem arises
+        disp(J.info);
     end
 
     %  D. H-Infinity Robust Design
@@ -355,8 +360,15 @@ end % End of K loop
 function Kx = solveLMI(LMIconstr,P,L)
 options = sdpsettings('verbose', 0);
 J = optimize(LMIconstr,[],options);
-if J.problem
+
+% Check residuals manually instead of relying on the 'J.problem' flag
+residuals = check(LMIconstr);
+is_feasible = all(residuals > -1e-7); % Use a small buffer for numerical noise
+
+if ~is_feasible
     disp("Unfeasible")
+    check(LMIconstr); % Display residuals to show where the problem arises
+    disp(J.info);
     Kx = [];
     return
 end
@@ -367,11 +379,11 @@ end
 
 function rho = isStable(F)
 eigenvals = eig(F);
-[rho, rho_idx] = max(abs(eigenvals));
+rho = max(abs(eigenvals));
 if (rho >= 1)
-    fprintf ('The spectral radius is |%.2f| >= 1 (Unstable).\n',eigenvals(rho_idx));
+    fprintf ('The spectral radius is %.2f >= 1 (Unstable).\n',rho);
 else
-    fprintf("The spectral radius is  |%.2f| < 1 (Stable).\n", eigenvals(rho_idx));
+    fprintf("The spectral radius is %.2f < 1 (Stable).\n", rho);
 end
 end
 
@@ -440,7 +452,7 @@ state_energy = sum(sum(x_hist.^2)) * h;
 threshold = 0.02; % 2% decay
 norm_val = 1;
 k_steps = 0;
-max_steps = 1000; % Safety break
+max_steps = 1000; % In case of no settling and the norm never goes below the threshold
 
 while norm_val > threshold && k_steps < max_steps
     k_steps = k_steps + 1;
