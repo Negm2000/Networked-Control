@@ -137,7 +137,7 @@ for k_val = [0.2, 2, 200]
     % ---------------------------------
     % Goal: Force eigenvalues |lambda| < rho
     % How: Require (1/rho)*(F+GK) to be Schur stable.
-    rho = 0.5;
+    rho = 0.37;
     LMIconstr_speed=[[rho^2*P-F*P*F'-F*L'*G'-G*L*F' , G*L;
         L'*G'           , P  ] >= 1e-6*eye(n_states*2)];
 
