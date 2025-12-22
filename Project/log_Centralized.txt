@@ -1,0 +1,184 @@
+Logging to: C:\Users\Karim Negm\Documents\NC\Labs\figs_Centralized\log_Centralized.txt
+
+=================================
+RUNNING FOR K = 0.200
+=================================
+Check if the Centralized discrete system is stable (Open Loop).
+The spectral radius is 4.78 >= 1 (Unstable).
+---------------------------------
+Controller Design With LMIs
+---------------------------------
+Checking for Fixed Modes...
+No Fixed Modes found. System is stabilizable with this structure.
+Check if the Centralized discrete system is stable (Stability LMI).
+The spectral radius is 0.30 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.00
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 12.51
+- Simulation Control Energy (Ju) = 37.57
+- Simulation State Energy (Jx) = 1.14
+
+Check if the Centralized discrete system is stable (Speed LMI).
+The spectral radius is 0.15 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 2.00
+- Measured Settling Time (2%) (Ts) = 1.50
+- Controller Gain Norm |K| = 13.17
+- Simulation Control Energy (Ju) = 40.71
+- Simulation State Energy (Jx) = 1.48
+
+Check if the Centralized discrete system is stable (H2).
+The spectral radius is 0.39 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.00
+- Measured Settling Time (2%) (Ts) = 2.50
+- Controller Gain Norm |K| = 12.24
+- Simulation Control Energy (Ju) = 37.90
+- Simulation State Energy (Jx) = 1.06
+
+Check if the Centralized discrete system is stable (H-inf).
+The spectral radius is 0.17 < 1 (Stable).
+Optimal H-Infinity Gain (gamma): 15.2034
+- Theoretical Max Settling Time (2%) = 2.00
+- Measured Settling Time (2%) (Ts) = 1.50
+- Controller Gain Norm |K| = 13.14
+- Simulation Control Energy (Ju) = 40.21
+- Simulation State Energy (Jx) = 1.45
+
+Check if the Centralized discrete system is stable (Damping LMI).
+The spectral radius is 0.27 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.00
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 12.19
+- Simulation Control Energy (Ju) = 37.85
+- Simulation State Energy (Jx) = 1.06
+
+Check stability (Multi-Objective).
+The spectral radius is 0.37 < 1 (Stable).
+Minimization Result: Kl=330.21, Ky=0.66
+- Theoretical Max Settling Time (2%) = 3.50
+- Measured Settling Time (2%) (Ts) = 2.50
+- Controller Gain Norm |K| = 12.00
+- Simulation Control Energy (Ju) = 38.07
+- Simulation State Energy (Jx) = 1.04
+
+
+=================================
+RUNNING FOR K = 2.000
+=================================
+Check if the Centralized discrete system is stable (Open Loop).
+The spectral radius is 4.78 >= 1 (Unstable).
+---------------------------------
+Controller Design With LMIs
+---------------------------------
+Checking for Fixed Modes...
+No Fixed Modes found. System is stabilizable with this structure.
+Check if the Centralized discrete system is stable (Stability LMI).
+The spectral radius is 0.48 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 4.00
+- Measured Settling Time (2%) (Ts) = 3.50
+- Controller Gain Norm |K| = 12.11
+- Simulation Control Energy (Ju) = 17.96
+- Simulation State Energy (Jx) = 0.90
+
+Check if the Centralized discrete system is stable (Speed LMI).
+The spectral radius is 0.18 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 2.00
+- Measured Settling Time (2%) (Ts) = 1.50
+- Controller Gain Norm |K| = 13.08
+- Simulation Control Energy (Ju) = 19.78
+- Simulation State Energy (Jx) = 1.22
+
+Check if the Centralized discrete system is stable (H2).
+The spectral radius is 0.49 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 4.00
+- Measured Settling Time (2%) (Ts) = 3.00
+- Controller Gain Norm |K| = 12.24
+- Simulation Control Energy (Ju) = 17.26
+- Simulation State Energy (Jx) = 0.92
+
+Check if the Centralized discrete system is stable (H-inf).
+The spectral radius is 0.29 < 1 (Stable).
+Optimal H-Infinity Gain (gamma): 15.2034
+- Theoretical Max Settling Time (2%) = 2.50
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 13.14
+- Simulation Control Energy (Ju) = 18.16
+- Simulation State Energy (Jx) = 1.09
+
+Check if the Centralized discrete system is stable (Damping LMI).
+The spectral radius is 0.32 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.00
+- Measured Settling Time (2%) (Ts) = 2.50
+- Controller Gain Norm |K| = 12.14
+- Simulation Control Energy (Ju) = 17.13
+- Simulation State Energy (Jx) = 0.95
+
+Check stability (Multi-Objective).
+The spectral radius is 0.37 < 1 (Stable).
+Minimization Result: Kl=330.22, Ky=0.66
+- Theoretical Max Settling Time (2%) = 3.50
+- Measured Settling Time (2%) (Ts) = 2.50
+- Controller Gain Norm |K| = 12.00
+- Simulation Control Energy (Ju) = 17.26
+- Simulation State Energy (Jx) = 0.99
+
+
+=================================
+RUNNING FOR K = 200.000
+=================================
+Check if the Centralized discrete system is stable (Open Loop).
+The spectral radius is 4.78 >= 1 (Unstable).
+---------------------------------
+Controller Design With LMIs
+---------------------------------
+Checking for Fixed Modes...
+No Fixed Modes found. System is stabilizable with this structure.
+Check if the Centralized discrete system is stable (Stability LMI).
+The spectral radius is 0.54 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 4.50
+- Measured Settling Time (2%) (Ts) = 3.50
+- Controller Gain Norm |K| = 200.77
+- Simulation Control Energy (Ju) = 12056.14
+- Simulation State Energy (Jx) = 6.80
+
+Check if the Centralized discrete system is stable (Speed LMI).
+The spectral radius is 0.16 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 2.00
+- Measured Settling Time (2%) (Ts) = 1.50
+- Controller Gain Norm |K| = 284.10
+- Simulation Control Energy (Ju) = 24442.75
+- Simulation State Energy (Jx) = 1.86
+
+Check if the Centralized discrete system is stable (H2).
+The spectral radius is 0.86 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 16.50
+- Measured Settling Time (2%) (Ts) = 14.50
+- Controller Gain Norm |K| = 53.74
+- Simulation Control Energy (Ju) = 1772.28
+- Simulation State Energy (Jx) = 149.79
+
+Check if the Centralized discrete system is stable (H-inf).
+The spectral radius is 0.92 < 1 (Stable).
+Optimal H-Infinity Gain (gamma): 203.0073
+- Theoretical Max Settling Time (2%) = 35.00
+- Measured Settling Time (2%) (Ts) = 25.00
+- Controller Gain Norm |K| = 192.62
+- Simulation Control Energy (Ju) = 10892.82
+- Simulation State Energy (Jx) = 36.02
+
+Check if the Centralized discrete system is stable (Damping LMI).
+The spectral radius is 0.28 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.00
+- Measured Settling Time (2%) (Ts) = 2.50
+- Controller Gain Norm |K| = 335.59
+- Simulation Control Energy (Ju) = 44154.83
+- Simulation State Energy (Jx) = 1.01
+
+Check stability (Multi-Objective).
+The spectral radius is 0.37 < 1 (Stable).
+Minimization Result: Kl=9837.70, Ky=19.69
+- Theoretical Max Settling Time (2%) = 3.00
+- Measured Settling Time (2%) (Ts) = 2.50
+- Controller Gain Norm |K| = 321.85
+- Simulation Control Energy (Ju) = 35670.94
+- Simulation State Energy (Jx) = 1.20
+

@@ -244,7 +244,7 @@ for k_val = [0.2, 2, 200]
     is_feasible = all(residuals > -1e-7); % Use a small buffer for numerical noise
 
     if is_feasible
-        K_hinf = double(L) / double(P)
+        K_hinf = double(L) / double(P);
         F_cl_hinf = F + G * K_hinf;
         disp(['Check if the ' CONTROL_STRUCTURE ' discrete system is stable (H-inf).'])
         isStable(F_cl_hinf);
@@ -349,7 +349,7 @@ for k_val = [0.2, 2, 200]
     if is_feasible
         L_val = double(L);
         P_val = double(P);
-        K_multi = L_val / P_val
+        K_multi = L_val / P_val;
         % Verification
         F_cl_multi = F + G * K_multi;
         disp("Check stability (Multi-Objective).")
@@ -542,6 +542,7 @@ axis equal;
 xlabel('Real Axis');
 ylabel('Imaginary Axis');
 title(['Closed-Loop Eigenvalues: ' strrep(plotTitle, '_', ' ')]);
+set(gca, 'XTick', -2:0.1:2);
 
 % Save
 saveas(gcf, fullfile(FIG_DIR, [plotTitle '_eigenvalues.png']));
