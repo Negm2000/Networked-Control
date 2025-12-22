@@ -224,3 +224,275 @@ Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debu
  
 LMI Infeasible.
 Numerical problems (<a href="yalmip.github.io/inside/debuggingnumerics">learn to debug</a>) (SeDuMi)
+Logging to: C:\Users\Karim Negm\Documents\NC\Labs\figs_Distributed_2to1\log_Distributed_2to1.txt
+
+=================================
+RUNNING FOR K = 0.200
+=================================
+Check if the Distributed_2to1 discrete system is stable (Open Loop).
+The spectral radius is 4.78 >= 1 (Unstable).
+---------------------------------
+Controller Design With LMIs
+---------------------------------
+Checking for Fixed Modes...
+No Fixed Modes found. System is stabilizable with this structure.
+Check if the Distributed_2to1 discrete system is stable (Stability LMI).
+The spectral radius is 0.33 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.00
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 12.38
+- Simulation Control Energy (Ju) = 37.81
+- Simulation State Energy (Jx) = 1.20
+
+
+Kx =
+
+  -12.3515   -3.9654         0         0
+   -0.1612   -0.0130  -12.4455   -3.9897
+
+Check if the Distributed_2to1 discrete system is stable (Speed LMI).
+The spectral radius is 0.15 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 2.00
+- Measured Settling Time (2%) (Ts) = 1.00
+- Controller Gain Norm |K| = 13.11
+- Simulation Control Energy (Ju) = 42.22
+- Simulation State Energy (Jx) = 1.59
+
+
+Kx =
+
+  -11.4358   -3.7268         0         0
+   -0.1928   -0.0347  -11.5665   -3.7560
+
+Check if the Distributed_2to1 discrete system is stable (H2).
+The spectral radius is 0.41 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.50
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 12.21
+- Simulation Control Energy (Ju) = 37.58
+- Simulation State Energy (Jx) = 1.12
+
+Check if the Distributed_2to1 discrete system is stable (H-inf).
+The spectral radius is 0.17 < 1 (Stable).
+Optimal H-Infinity Gain (gamma): 15.6406
+- Theoretical Max Settling Time (2%) = 2.50
+- Measured Settling Time (2%) (Ts) = 1.00
+- Controller Gain Norm |K| = 13.07
+- Simulation Control Energy (Ju) = 41.64
+- Simulation State Energy (Jx) = 1.55
+
+
+Kx =
+
+  -11.4003   -3.6699         0         0
+   -0.1799   -0.0196  -11.4326   -3.6824
+
+Check if the Distributed_2to1 discrete system is stable (Damping LMI).
+The spectral radius is 0.29 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.50
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 12.08
+- Simulation Control Energy (Ju) = 37.69
+- Simulation State Energy (Jx) = 1.11
+
+Check stability (Multi-Objective).
+The spectral radius is 0.33 < 1 (Stable).
+Minimization Result: Kl=332.04, Ky=0.66
+- Theoretical Max Settling Time (2%) = 3.00
+- Measured Settling Time (2%) (Ts) = 1.50
+- Controller Gain Norm |K| = 12.10
+- Simulation Control Energy (Ju) = 37.68
+- Simulation State Energy (Jx) = 1.17
+
+
+=================================
+RUNNING FOR K = 2.000
+=================================
+Check if the Distributed_2to1 discrete system is stable (Open Loop).
+The spectral radius is 4.78 >= 1 (Unstable).
+---------------------------------
+Controller Design With LMIs
+---------------------------------
+Checking for Fixed Modes...
+No Fixed Modes found. System is stabilizable with this structure.
+Check if the Distributed_2to1 discrete system is stable (Stability LMI).
+The spectral radius is 0.42 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 4.00
+- Measured Settling Time (2%) (Ts) = 3.00
+- Controller Gain Norm |K| = 11.92
+- Simulation Control Energy (Ju) = 28.69
+- Simulation State Energy (Jx) = 1.74
+
+
+Kx =
+
+  -10.4614   -3.7111         0         0
+   -1.8266   -0.2023  -11.6601   -3.9753
+
+Check if the Distributed_2to1 discrete system is stable (Speed LMI).
+The spectral radius is 0.23 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 2.50
+- Measured Settling Time (2%) (Ts) = 1.50
+- Controller Gain Norm |K| = 12.83
+- Simulation Control Energy (Ju) = 39.55
+- Simulation State Energy (Jx) = 2.44
+
+
+Kx =
+
+   -9.5953   -3.4643         0         0
+   -1.8896   -0.2339  -10.7095   -3.7237
+
+Check if the Distributed_2to1 discrete system is stable (H2).
+The spectral radius is 0.44 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 4.00
+- Measured Settling Time (2%) (Ts) = 2.50
+- Controller Gain Norm |K| = 11.90
+- Simulation Control Energy (Ju) = 27.39
+- Simulation State Energy (Jx) = 1.72
+
+Check if the Distributed_2to1 discrete system is stable (H-inf).
+The spectral radius is 0.20 < 1 (Stable).
+Optimal H-Infinity Gain (gamma): 19.7984
+- Theoretical Max Settling Time (2%) = 2.50
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 12.52
+- Simulation Control Energy (Ju) = 37.43
+- Simulation State Energy (Jx) = 2.30
+
+
+Kx =
+
+   -9.5174   -3.3999         0         0
+   -1.8782   -0.2237   -9.9719   -3.5438
+
+Check if the Distributed_2to1 discrete system is stable (Damping LMI).
+The spectral radius is 0.44 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 4.50
+- Measured Settling Time (2%) (Ts) = 3.50
+- Controller Gain Norm |K| = 11.34
+- Simulation Control Energy (Ju) = 28.70
+- Simulation State Energy (Jx) = 1.63
+
+Check stability (Multi-Objective).
+The spectral radius is 0.32 < 1 (Stable).
+Minimization Result: Kl=4378.37, Ky=8.76
+- Theoretical Max Settling Time (2%) = 3.50
+- Measured Settling Time (2%) (Ts) = 2.50
+- Controller Gain Norm |K| = 11.79
+- Simulation Control Energy (Ju) = 30.49
+- Simulation State Energy (Jx) = 1.83
+
+
+=================================
+RUNNING FOR K = 200.000
+=================================
+Check if the Distributed_2to1 discrete system is stable (Open Loop).
+The spectral radius is 4.78 >= 1 (Unstable).
+---------------------------------
+Controller Design With LMIs
+---------------------------------
+Checking for Fixed Modes...
+No Fixed Modes found. System is stabilizable with this structure.
+Unfeasible
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|   Dual residual|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|       -1.3235e-06|      7.0187e-07|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible    |
+| solutions, which may cause some residuals to be negative.    |
+| It is up to the user to judge the importance and impact of   |
+| slightly negative residuals (i.e. infeasibilities)           |
+| https://yalmip.github.io/command/check/                      |
+| https://yalmip.github.io/faq/solutionviolated/               |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+Unfeasible
+ 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|    Dual residual|
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|       -2.3414e-06|   272745557.3014|
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible     |
+| solutions, which may cause some residuals to be negative.     |
+| It is up to the user to judge the importance and impact of    |
+| slightly negative residuals (i.e. infeasibilities)            |
+| https://yalmip.github.io/command/check/                       |
+| https://yalmip.github.io/faq/solutionviolated/                |
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+
+Kx =
+
+     []
+
+H2 LMI was Infeasible
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|   Dual residual|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|                -1|       1.464e-11|
+|   #2|   Matrix inequality|        0.00030081|      4.3103e-12|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible    |
+| solutions, which may cause some residuals to be negative.    |
+| It is up to the user to judge the importance and impact of   |
+| slightly negative residuals (i.e. infeasibilities)           |
+| https://yalmip.github.io/command/check/                      |
+| https://yalmip.github.io/faq/solutionviolated/               |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+H-Infinity LMI was Infeasible
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+Unfeasible
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|   Dual residual|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|            -1e-06|       1089.9099|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible    |
+| solutions, which may cause some residuals to be negative.    |
+| It is up to the user to judge the importance and impact of   |
+| slightly negative residuals (i.e. infeasibilities)           |
+| https://yalmip.github.io/command/check/                      |
+| https://yalmip.github.io/faq/solutionviolated/               |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+
+Kx =
+
+     []
+
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|     Dual residual|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|       -5.3941e-06|   5707751449.6746|
+|   #2|   Matrix inequality|       -5.3641e-06|   5452294224.8506|
+|   #3|   Matrix inequality|                 1|         0.0025237|
+|   #4|   Matrix inequality|       -5.6037e-06|           0.44242|
+|   #5|   Matrix inequality|       -3.4557e-08|   6082348639.8166|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible      |
+| solutions, which may cause some residuals to be negative.      |
+| It is up to the user to judge the importance and impact of     |
+| slightly negative residuals (i.e. infeasibilities)             |
+| https://yalmip.github.io/command/check/                        |
+| https://yalmip.github.io/faq/solutionviolated/                 |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+LMI Infeasible.
+Numerical problems (<a href="yalmip.github.io/inside/debuggingnumerics">learn to debug</a>) (SeDuMi)

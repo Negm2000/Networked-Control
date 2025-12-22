@@ -255,3 +255,303 @@ Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debu
  
 LMI Infeasible.
 Numerical problems (<a href="yalmip.github.io/inside/debuggingnumerics">learn to debug</a>) (SeDuMi)
+Logging to: C:\Users\Karim Negm\Documents\NC\Labs\figs_Decentralized\log_Decentralized.txt
+
+=================================
+RUNNING FOR K = 0.200
+=================================
+Check if the Decentralized discrete system is stable (Open Loop).
+The spectral radius is 4.78 >= 1 (Unstable).
+---------------------------------
+Controller Design With LMIs
+---------------------------------
+Checking for Fixed Modes...
+No Fixed Modes found. System is stabilizable with this structure.
+Check if the Decentralized discrete system is stable (Stability LMI).
+The spectral radius is 0.45 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.50
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 11.98
+- Simulation Control Energy (Ju) = 37.59
+- Simulation State Energy (Jx) = 1.13
+
+
+Kx =
+
+  -12.4322   -3.9870         0         0
+         0         0  -12.4322   -3.9870
+
+Check if the Decentralized discrete system is stable (Speed LMI).
+The spectral radius is 0.24 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 2.50
+- Measured Settling Time (2%) (Ts) = 1.00
+- Controller Gain Norm |K| = 13.06
+- Simulation Control Energy (Ju) = 43.48
+- Simulation State Energy (Jx) = 1.67
+
+
+Kx =
+
+  -11.5705   -3.7560         0         0
+         0         0  -11.5705   -3.7560
+
+Check if the Decentralized discrete system is stable (H2).
+The spectral radius is 0.43 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.50
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 12.16
+- Simulation Control Energy (Ju) = 37.70
+- Simulation State Energy (Jx) = 1.19
+
+Check if the Decentralized discrete system is stable (H-inf).
+The spectral radius is 0.26 < 1 (Stable).
+Optimal H-Infinity Gain (gamma): 16.1909
+- Theoretical Max Settling Time (2%) = 2.50
+- Measured Settling Time (2%) (Ts) = 1.00
+- Controller Gain Norm |K| = 12.97
+- Simulation Control Energy (Ju) = 42.57
+- Simulation State Energy (Jx) = 1.62
+
+
+Kx =
+
+  -11.4196   -3.6787         0         0
+         0         0  -11.4196   -3.6787
+
+Check if the Decentralized discrete system is stable (Damping LMI).
+The spectral radius is 0.43 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 3.50
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 12.00
+- Simulation Control Energy (Ju) = 37.60
+- Simulation State Energy (Jx) = 1.14
+
+Check stability (Multi-Objective).
+The spectral radius is 0.34 < 1 (Stable).
+Minimization Result: Kl=332.31, Ky=0.66
+- Theoretical Max Settling Time (2%) = 3.00
+- Measured Settling Time (2%) (Ts) = 1.50
+- Controller Gain Norm |K| = 12.12
+- Simulation Control Energy (Ju) = 37.76
+- Simulation State Energy (Jx) = 1.20
+
+
+=================================
+RUNNING FOR K = 2.000
+=================================
+Check if the Decentralized discrete system is stable (Open Loop).
+The spectral radius is 4.78 >= 1 (Unstable).
+---------------------------------
+Controller Design With LMIs
+---------------------------------
+Checking for Fixed Modes...
+No Fixed Modes found. System is stabilizable with this structure.
+Check if the Decentralized discrete system is stable (Stability LMI).
+The spectral radius is 0.78 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 8.50
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 11.23
+- Simulation Control Energy (Ju) = 47.79
+- Simulation State Energy (Jx) = 2.97
+
+Unfeasible
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|   Dual residual|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|            -1e-06|      0.00021412|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible    |
+| solutions, which may cause some residuals to be negative.    |
+| It is up to the user to judge the importance and impact of   |
+| slightly negative residuals (i.e. infeasibilities)           |
+| https://yalmip.github.io/command/check/                      |
+| https://yalmip.github.io/faq/solutionviolated/               |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+
+Kx =
+
+     []
+
+
+Kx =
+
+  -11.0554   -3.7992         0         0
+         0         0  -11.0554   -3.7992
+
+Check if the Decentralized discrete system is stable (H2).
+The spectral radius is 0.66 < 1 (Stable).
+- Theoretical Max Settling Time (2%) = 5.50
+- Measured Settling Time (2%) (Ts) = 2.00
+- Controller Gain Norm |K| = 11.69
+- Simulation Control Energy (Ju) = 60.25
+- Simulation State Energy (Jx) = 3.64
+
+Check if the Decentralized discrete system is stable (H-inf).
+The spectral radius is 0.63 < 1 (Stable).
+Optimal H-Infinity Gain (gamma): 31.6257
+- Theoretical Max Settling Time (2%) = 5.00
+- Measured Settling Time (2%) (Ts) = 2.50
+- Controller Gain Norm |K| = 11.89
+- Simulation Control Energy (Ju) = 67.87
+- Simulation State Energy (Jx) = 4.03
+
+Unfeasible
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|   Dual residual|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|            -1e-06|         88.5494|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible    |
+| solutions, which may cause some residuals to be negative.    |
+| It is up to the user to judge the importance and impact of   |
+| slightly negative residuals (i.e. infeasibilities)           |
+| https://yalmip.github.io/command/check/                      |
+| https://yalmip.github.io/faq/solutionviolated/               |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+
+Kx =
+
+     []
+
+ 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|    Dual residual|
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|       -5.1176e-06|   604091616.6986|
+|   #2|   Matrix inequality|       -5.0235e-06|    580379762.744|
+|   #3|   Matrix inequality|                 1|         0.002521|
+|   #4|   Matrix inequality|       -2.0014e-06|          0.54958|
+|   #5|   Matrix inequality|        7.5356e-06|   636207044.0324|
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible     |
+| solutions, which may cause some residuals to be negative.     |
+| It is up to the user to judge the importance and impact of    |
+| slightly negative residuals (i.e. infeasibilities)            |
+| https://yalmip.github.io/command/check/                       |
+| https://yalmip.github.io/faq/solutionviolated/                |
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+LMI Infeasible.
+Numerical problems (<a href="yalmip.github.io/inside/debuggingnumerics">learn to debug</a>) (SeDuMi)
+
+=================================
+RUNNING FOR K = 200.000
+=================================
+Check if the Decentralized discrete system is stable (Open Loop).
+The spectral radius is 4.78 >= 1 (Unstable).
+---------------------------------
+Controller Design With LMIs
+---------------------------------
+Checking for Fixed Modes...
+No Fixed Modes found. System is stabilizable with this structure.
+Unfeasible
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|   Dual residual|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|            -1e-06|          16.552|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible    |
+| solutions, which may cause some residuals to be negative.    |
+| It is up to the user to judge the importance and impact of   |
+| slightly negative residuals (i.e. infeasibilities)           |
+| https://yalmip.github.io/command/check/                      |
+| https://yalmip.github.io/faq/solutionviolated/               |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+Unfeasible
+ 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|    Dual residual|
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|       -2.7596e-06|   328808111.8971|
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible     |
+| solutions, which may cause some residuals to be negative.     |
+| It is up to the user to judge the importance and impact of    |
+| slightly negative residuals (i.e. infeasibilities)            |
+| https://yalmip.github.io/command/check/                       |
+| https://yalmip.github.io/faq/solutionviolated/                |
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+
+Kx =
+
+     []
+
+H2 LMI was Infeasible
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|   Dual residual|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|                -1|      1.0963e-05|
+|   #2|   Matrix inequality|            -1e-06|      1.2729e-13|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible    |
+| solutions, which may cause some residuals to be negative.    |
+| It is up to the user to judge the importance and impact of   |
+| slightly negative residuals (i.e. infeasibilities)           |
+| https://yalmip.github.io/command/check/                      |
+| https://yalmip.github.io/faq/solutionviolated/               |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+H-Infinity LMI was Infeasible
+Numerical problems (<a href="yalmip.github.io/inside/debuggingnumerics">learn to debug</a>) (SeDuMi)
+Unfeasible
+ 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|    Dual residual|
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|       -1.7248e-06|   185950499.9591|
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible     |
+| solutions, which may cause some residuals to be negative.     |
+| It is up to the user to judge the importance and impact of    |
+| slightly negative residuals (i.e. infeasibilities)            |
+| https://yalmip.github.io/command/check/                       |
+| https://yalmip.github.io/faq/solutionviolated/                |
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+Infeasible problem (<a href="yalmip.github.io/debugginginfeasible">learn to debug</a>) (SeDuMi)
+
+Kx =
+
+     []
+
+ 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   ID|          Constraint|   Primal residual|      Dual residual|
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+|   #1|   Matrix inequality|       -4.3907e-06|   10973942621.8714|
+|   #2|   Matrix inequality|       -5.0112e-06|   10145710728.2438|
+|   #3|   Matrix inequality|                 1|          0.0025213|
+|   #4|   Matrix inequality|       -4.6739e-06|            0.65163|
+|   #5|   Matrix inequality|         -4.64e-07|   11719957458.0797|
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| A primal-dual optimal solution would show non-negative residuals.|
+| In practice, many solvers converge to slightly infeasible       |
+| solutions, which may cause some residuals to be negative.       |
+| It is up to the user to judge the importance and impact of      |
+| slightly negative residuals (i.e. infeasibilities)              |
+| https://yalmip.github.io/command/check/                         |
+| https://yalmip.github.io/faq/solutionviolated/                  |
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+LMI Infeasible.
+Numerical problems (<a href="yalmip.github.io/inside/debuggingnumerics">learn to debug</a>) (SeDuMi)

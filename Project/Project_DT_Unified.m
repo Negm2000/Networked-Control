@@ -4,8 +4,8 @@ close all
 
 % Project 7: Coupled Penduli
 % Control Structure Selection
-% Options: 'Centralized', 'Decentralized', Distributed_1to2,'Distributed_2to1', 'Distributed_Full'
-CONTROL_STRUCTURE = 'Centralized';
+% Options: 'Centralized', 'Decentralized','Distributed_2to1', 'Distributed_Full'
+CONTROL_STRUCTURE = 'Decentralized';
 
 global FIG_DIR;
 FIG_DIR = "figs_" + CONTROL_STRUCTURE;
@@ -90,9 +90,6 @@ for k_val = [0.2, 2, 200]
         case 'Distributed_2to1'
             % Information flows 2 -> 1 (Subsystem 1 can read Output 2)
             ContStruc = [1 1; 0 1];
-        case 'Distributed_1to2'
-            % Information flows 1 -> 2 (Subsystem 2 can read Output 1)
-            ContStruc = [1 0; 1 1];
         case 'Distributed_Full'
             ContStruc = ones(2,2);
     end
